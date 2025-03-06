@@ -1,0 +1,93 @@
+{
+    "1" : [
+        {
+            "Position" : "l",
+            "DayInStudy" : 1,
+            "FileSetId" : "1"
+        }
+    ],
+    "2" : [
+        {
+            "Position" : "l",
+            "DayInStudy" : 1,
+            "FileSetId" : "2"
+        }
+    ],
+    "3" : [
+        {
+            "Position" : "l",
+            "DayInStudy" : 1,
+            "FileSetId" : "3"
+        }
+    ],
+    "4" : [
+        {
+            "Position" : "l",
+            "DayInStudy" : 1,
+            "FileSetId" : "4"
+        } 
+    ],
+    "5" : [
+        {
+            "Position" : "l",
+            "DayInStudy" : 1,
+            "FileSetId" : "5"
+        }
+    ],
+    "6" : [
+        {
+            "Position" : "l",
+            "DayInStudy" : 1,
+            "FileSetId" : "6"
+        }
+    ],
+    "7" : [
+        {
+            "Position" : "l",
+            "DayInStudy" : 1,
+            "FileSetId" : "7"
+        }
+    ],
+    "8" : [
+        {
+            "Position" : "r",
+            "DayInStudy" : 1,
+            "FileSetId" : "8"
+        }
+    ],
+    "9" : [
+        {
+            "Position" : "r",
+            "DayInStudy" : 1,
+            "FileSetId" : "9"
+        }
+    ],
+    "10" : [
+        {
+            "Position" : "r",
+            "DayInStudy" : 1,
+            "FileSetId" : "10"
+        }
+    ],
+    "11" : [
+        {
+            "Position" : "r",
+            "DayInStudy" : 1,
+            "FileSetId" : "11"
+        }
+    ],
+    "12" : [
+        {
+            "Position" : "r",
+            "DayInStudy" : 1,
+            "FileSetId" : "12"
+        }
+    ],
+    "13" : [
+        {
+            "Position" : "r",
+            "DayInStudy" : 1,
+            "FileSetId" : "13"
+        }
+    ]
+}
