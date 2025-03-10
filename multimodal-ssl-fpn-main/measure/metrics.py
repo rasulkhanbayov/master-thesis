@@ -66,7 +66,7 @@ class BCE(Metrics):
 
         assert (gr[:, self.slice].shape == pred[:, self.slice].shape)
 
-        pred = pred[:, self.slice].reshape(pred.size(0), -1)
+        pred = pred[:, self.slice].view(pred.size(0), -1)
         gr = gr[:, self.slice].view(gr.size(0), -1)
 
         bce = F.binary_cross_entropy(pred, gr, reduction='none')
@@ -195,7 +195,7 @@ class MSE(Metrics):
 
         assert (gr[:, self.slice].shape == pred[:, self.slice].shape)
 
-        pred = pred[:, self.slice].reshape(pred.size(0), -1)
+        pred = pred[:, self.slice].view(pred.size(0), -1)
         gr = gr[:, self.slice].view(gr.size(0), -1)
                                                             
         mse = F.mse_loss(pred, gr, reduction='none')
@@ -219,7 +219,7 @@ class FocalLoss(Metrics):
 
         assert (gr[:, self.slice].shape == pred[:, self.slice].shape)
 
-        pred = pred[:, self.slice].reshape(pred.size(0), -1)
+        pred = pred[:, self.slice].view(pred.size(0), -1)
         gr = gr[:, self.slice].view(gr.size(0), -1)
 
         BCE_loss = F.binary_cross_entropy(pred, gr, reduction='none')
@@ -242,7 +242,7 @@ class CrossEntropyLoss(Metrics):
 
         assert (gr[:, self.slice].shape == pred[:, self.slice].shape)
 
-        pred = pred[:, self.slice].reshape(pred.size(0), -1)
+        pred = pred[:, self.slice].view(pred.size(0), -1)
         gr = gr[:, self.slice].view(gr.size(0), -1)
 
         ce_loss = F.cross_entropy(pred, gr, reduction='none')

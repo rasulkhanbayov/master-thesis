@@ -14,7 +14,6 @@ from skimage.morphology import disk
 import time
 import matplotlib
 from matplotlib import pyplot as plt
-import cv2
 
 from factory_utils import get_factory_adder
 
@@ -121,12 +120,6 @@ class Model(pl.LightningModule):
     @staticmethod
     def normalize_data(data: np.ndarray) -> np.ndarray:
         return (data - np.min(data)) / (np.max(data)+1e-10 - np.min(data))
-    
-    @staticmethod
-    def normalize_data_rgb_based(data: np.ndarray) -> np.ndarray:
-        min_val = data.min(axis=(0, 1), keepdims=True)
-        max_val = data.max(axis=(0, 1), keepdims=True)
-        return (data - min_val) / (max_val - min_val + 1e-10)
 
     def debug_batch(self, batch: dict):
         images = {}
@@ -138,70 +131,44 @@ class Model(pl.LightningModule):
             for k in ['mask', 'prediction', 'image']:
                 if k not in batch:
                     continue
+                image = batch[k].detach().cpu().numpy()[b_i,0,:,:,:].mean(axis=1)
 
-                save_path_1 = join(self.model_path, 'test') # type: ignore
-                
-                if k == 'mask' or k == 'prediction':
-                    image = batch[k].detach().cpu().numpy()[b_i, 0, :, :, :].transpose(0, 2, 1)
-
-                    image = (image * 255).astype(np.uint8)
-
-                    # Save as RGB image
-                    io.imsave(join(save_path_1, f'{ii} detach.png'), image)
-                else:
-                    image = batch[k].detach().cpu().numpy()[b_i,0,:,:,:].mean(axis=1)
-
-                    io.imsave(join(save_path_1, f'{ii} detach.png'),(image*255).astype(np.uint8))
+                # Saving the detach image
+                save_path_1 = join(self.model_path, 'test')
+                io.imsave(
+                join(save_path_1, f'{ii} detach.png'),
+                (image * 255).astype(np.uint8))
 
                 image = resize(
                     image,
-                    (256,256,3),
+                    (256,256),
                     preserve_range=True,
                 )
 
-                if k == 'mask':
-                    
-                    image = image.astype(np.uint8)  # Convert to uint8
+                # Saving the resize image
+                save_path_1 = join(self.model_path, 'test')
+                io.imsave(
+                join(save_path_1, f'{ii} resize.png'),
+                (image * 255).astype(np.uint8))
+                
+                image = self.normalize_data(image)
 
-                    # Save as RGB image
-                    io.imsave(join(save_path_1, f'{ii} resize.png'), image)
-                else: 
-                    save_path_1 = join(self.model_path, 'test')
-                    io.imsave(join(save_path_1, f'{ii} resize.png'), (image * 255).astype(np.uint8))
-
-                    # image = self.normalize_data_rgb_based(image)
-                    image = self.normalize_data(image)
-
-                if k == 'mask':
-                    
-                    image = image.astype(np.uint8)  # Convert to uint8
-
-                    # Save as RGB image
-                    io.imsave(join(save_path_1, f'{ii} normalize.png'), image)
-                else:
-                    save_path_1 = join(self.model_path, 'test')
-                    io.imsave(
-                    join(save_path_1, f'{ii} normalize.png'),
-                    (image * 255).astype(np.uint8))
+                # Saving the normalize image
+                save_path_1 = join(self.model_path, 'test')
+                io.imsave(
+                join(save_path_1, f'{ii} normalize.png'),
+                (image * 255).astype(np.uint8))
 
                 try:
-                    if k != 'mask':
-                        image = image * 255
                     images[b_i] = np.concatenate([images[b_i], image], axis = 1)
                 except KeyError:
                     images[b_i] = image
 
-                if k == 'mask':
-                    
-                    image = image.astype(np.uint8)  # Convert to uint8
-
-                    # Save as RGB image
-                    io.imsave(join(save_path_1, f'{ii} end.png'), image)
-                else: 
-                    save_path_1 = join(self.model_path, 'test') # type: ignore
-                    io.imsave(
-                    join(save_path_1, f'{ii} end.png'),
-                    (image * 255).astype(np.uint8))
+                # Saving the ending image
+                save_path_1 = join(self.model_path, 'test')
+                io.imsave(
+                join(save_path_1, f'{ii} end.png'),
+                (image * 255).astype(np.uint8))
                 ii=ii+1
                 print(k, torch.unique(batch[k]))
         all_images = np.concatenate(
@@ -217,7 +184,7 @@ class Model(pl.LightningModule):
 
         io.imsave(
             join(save_path, f'{current_ms}.png'),
-            all_images.astype(np.uint8)
+            (all_images * 255).astype(np.uint8)
         )
 
     def training_step(self, batch, _batch_idx):

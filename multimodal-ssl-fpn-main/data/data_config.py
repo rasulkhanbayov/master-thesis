@@ -119,11 +119,6 @@ class MMetric:
 @add_data_config
 class Segmentation(DefaultConfig):
     metrics_train = {
-        # 'SSIM': metrics.SSIM(
-        #     output_key='prediction',
-        #     target_key='mask',
-        #     slice=0
-        # ),
         'MSE': metrics.MSE(
             output_key='prediction',
             target_key='mask',
@@ -134,11 +129,6 @@ class Segmentation(DefaultConfig):
             target_key='mask',
             slice=0
         ),
-        # 'CCE': metrics.CrossEntropyLoss(
-        #     output_key='prediction',
-        #     target_key='mask',
-        #     slice=0
-        # ),
         'FocalLoss': metrics.FocalLoss(
             output_key='prediction',
             target_key='mask',
@@ -146,14 +136,19 @@ class Segmentation(DefaultConfig):
             gamma=2.0,
             slice=0
         ),
+        # 'SSIM': metrics.SSIM(
+        #     output_key='prediction',
+        #     target_key='mask',
+        #     slice=0
+        # ),
+        # 'CCE': metrics.CrossEntropyLoss(
+        #     output_key='prediction',
+        #     target_key='mask',
+        #     slice=0
+        # ),
     }
 
     metrics_val = {
-        # 'SSIM': metrics.SSIM(
-        #     output_key='prediction',
-        #     target_key='mask',
-        #     slice=0
-        # ),
         'MSE': metrics.MSE(
             output_key='prediction',
             target_key='mask',
@@ -164,11 +159,6 @@ class Segmentation(DefaultConfig):
             target_key='mask',
             slice=0
         ),
-        # 'CCE': metrics.CrossEntropyLoss(
-        #     output_key='prediction',
-        #     target_key='mask',
-        #     slice=0
-        # ),
         'FocalLoss': metrics.FocalLoss(
             output_key='prediction',
             target_key='mask',
@@ -176,6 +166,16 @@ class Segmentation(DefaultConfig):
             gamma=2.0,
             slice=0
         ),
+        # 'SSIM': metrics.SSIM(
+        #     output_key='prediction',
+        #     target_key='mask',
+        #     slice=0
+        # ),
+        # 'CCE': metrics.CrossEntropyLoss(
+        #     output_key='prediction',
+        #     target_key='mask',
+        #     slice=0
+        # ),
     }
 
     rate_mode = 'minimum'

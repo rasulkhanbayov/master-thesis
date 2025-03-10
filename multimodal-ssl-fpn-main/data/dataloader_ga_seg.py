@@ -2,9 +2,8 @@ from os.path import join
 from typing import Dict, List
 import json
 
-import random
 import numpy as np
-from skimage import io as skio
+from skimage import io
 import scipy.io
 from PIL import Image 
 import matplotlib.pyplot as plt
@@ -12,7 +11,6 @@ import io
 import os
 from os.path import join
 import shutil  # For removing directories
-import cv2
 
 from data.abstract_dataloader import AbstractDataset
 
@@ -59,10 +57,7 @@ class MultimodalGASegDataset(AbstractDataset):
 
         image_transposed = image_transposed[None]
         self.record['image'] = image_transposed
-   
-        # image = image[None]
-        # self.record['image'] = image
-        
+
         # if self.get_spacing:
         #     self.record['spacing'] = np.load(
         #         join(path, 'spacing.'+file_set_id+'.npy')
@@ -100,47 +95,16 @@ class MultimodalGASegDataset(AbstractDataset):
             if self.reconstruction.startswith('inverted'):
                 mask = 1 - mask
         else:
-            # mask = skio.imread(
-            #     join(
-            #         path, 'cropped_' + file_set_id + '_l.png'
-            #         # path, file_set_id + '_l.mat'
-            #         # path + "\\" + file_set_id + '_l.mat'
-            #     )
-            # ) # type: np.ndarray  
+            mat = scipy.io.loadmat(path + "\\" + file_set_id + '_l.mat')
+            array_mask = mat["d3"]
 
-            # mask = cv2.imread(path + '/cropped_' + str(file_set_id) + '_l.png')
+            array_mask = np.transpose(array_mask, (1, 0, 2))
 
-            mask = Image.open(path + '/cropped_' + str(file_set_id) + '_l.png')
-
-            mask = mask.resize((128, 512))
-
-            # mask = cv2.resize(mask, (128, 512))     
-            # mask = cv2.cvtColor(mask, cv2.COLOR_BGR2RGB)
-
-            # mat = scipy.io.loadmat(path + "\\" + file_set_id + '_l.mat')
-            # array_mask = mat["d3"]
-
-            # array_mask = np.transpose(array_mask, (1, 0, 2))
-
-            # N = array_mask.shape[1]
-            # new_N = (N // 3) * 3  # Make N divisible by 3
-
-            # # Truncate to nearest multiple of 3
-            # array_mask = array_mask[:, :new_N, ...]
-
-            # # Reshape and reduce
-            # array_mask_reshaped = array_mask.reshape(array_mask.shape[0], 3, -1, *array_mask.shape[2:])
-            # mask = np.mean(array_mask_reshaped, axis=2)  # Reduce within groups
-
-            # mask = mask.transpose(0, 2, 1)
-
-            # mask = np.mean(array_mask, axis = 1)
+            mask = np.mean(array_mask, axis = 1)
             mask = (mask - np.min(mask)) / (np.max(mask) - np.min(mask))
 
-            # mask = (mask - np.min(mask, axis=(0,1))) / (np.max(mask, axis=(0,1)) - np.min(mask, axis=(0,1)))
-
             image_buffer = io.BytesIO()
-            plt.imshow(mask, aspect='auto')
+            plt.imshow(mask, cmap='gray', aspect='auto')
             plt.axis('off')
             plt.savefig(image_buffer, format="PNG", bbox_inches='tight', pad_inches=0)
             plt.close()
@@ -149,21 +113,16 @@ class MultimodalGASegDataset(AbstractDataset):
             # mask = mask/256
             # Apply threshold
             # mask = np.where(mask>=0.5, 1., 0.)
-        # self.record['mask'] = mask[None,:,None,:]
-                            # 512 128 3
-                            # 1 512 1 128 3
-        # self.record['mask'] = mask[None, ..., None].transpose(0, 3, 1, 2, 4)
-        # self.record['mask'] = mask.transpose(2, 0, 1)[:, :, None, :]
+        self.record['mask'] = mask[None,:,None,:]
 
-        self.record['mask'] = mask.transpose(0, 2, 1)[None, :, :, :]
+        save_dir = "en_face_images"
+        os.makedirs(save_dir, exist_ok=True)
 
-        save_dir = "fundus_images"
-
-        save_path = join(save_dir, f"{random.random()}_fundus_image.png")
+        save_path = join(save_dir, f"{file_set_id}_en_face_image.png")
 
         en_face_image = Image.open(io.BytesIO(image_bytes))
         en_face_image.save(save_path)
         en_face_image.close()
         del image_bytes
 
-        return self.record
+        # return self.record
