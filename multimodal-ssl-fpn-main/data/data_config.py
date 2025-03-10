@@ -24,6 +24,10 @@ class DefaultConfig:
                 output_key='prediction',
                 target_key='mask'
             ),
+            # 'SSIM': loss.SSIMLoss(
+            #     output_key='prediction',
+            #     target_key='mask'
+            # ),
             # 'MSE loss': loss.MSELoss(
             #     output_key='prediction',
             #     target_key='mask'
@@ -115,6 +119,11 @@ class MMetric:
 @add_data_config
 class Segmentation(DefaultConfig):
     metrics_train = {
+        # 'SSIM': metrics.SSIM(
+        #     output_key='prediction',
+        #     target_key='mask',
+        #     slice=0
+        # ),
         'MSE': metrics.MSE(
             output_key='prediction',
             target_key='mask',
@@ -140,6 +149,11 @@ class Segmentation(DefaultConfig):
     }
 
     metrics_val = {
+        # 'SSIM': metrics.SSIM(
+        #     output_key='prediction',
+        #     target_key='mask',
+        #     slice=0
+        # ),
         'MSE': metrics.MSE(
             output_key='prediction',
             target_key='mask',

@@ -56,10 +56,6 @@ class MultimodalGASegDataset(AbstractDataset):
         image = mat["d3"]
 
         image_transposed = np.transpose(image, (1, 0, 2))
-        
-        # print("-------------------3D SHAPE-----------------------")
-        # print(image_transposed.shape)
-        # print("--------------------------------------------------")
 
         image_transposed = image_transposed[None]
         self.record['image'] = image_transposed
@@ -67,10 +63,6 @@ class MultimodalGASegDataset(AbstractDataset):
         # image = image[None]
         # self.record['image'] = image
         
-        # print("-------------------3D SHAPE-----------------------")
-        # print(image.shape)
-        # print("--------------------------------------------------")
-
         # if self.get_spacing:
         #     self.record['spacing'] = np.load(
         #         join(path, 'spacing.'+file_set_id+'.npy')
@@ -116,29 +108,19 @@ class MultimodalGASegDataset(AbstractDataset):
             #     )
             # ) # type: np.ndarray  
 
-            mask = cv2.imread(path + '/cropped_' + str(file_set_id) + '_l.png')
+            # mask = cv2.imread(path + '/cropped_' + str(file_set_id) + '_l.png')
 
-            mask = cv2.resize(mask, (128, 512))     
-            mask = cv2.cvtColor(mask, cv2.COLOR_BGR2RGB)
+            mask = Image.open(path + '/cropped_' + str(file_set_id) + '_l.png')
 
+            mask = mask.resize((128, 512))
 
+            # mask = cv2.resize(mask, (128, 512))     
+            # mask = cv2.cvtColor(mask, cv2.COLOR_BGR2RGB)
 
-            # mask = np.resize(mask, (512, 128, 3))
-
-            # save_path_1 = join(path, 'test') # type: ignore
-            # io.imsave(
-            # join(save_path_1, f'{file_set_id} normalizeeeeee.png'),
-            # (mask * 255).astype(np.uint8))
-            
-            # print("ssss")
             # mat = scipy.io.loadmat(path + "\\" + file_set_id + '_l.mat')
             # array_mask = mat["d3"]
 
             # array_mask = np.transpose(array_mask, (1, 0, 2))
-
-            # print("-------------------array_mask SHAPE-----------------------")
-            # print(array_mask.shape)
-            # print("----------------------------------------------------")
 
             # N = array_mask.shape[1]
             # new_N = (N // 3) * 3  # Make N divisible by 3
@@ -157,11 +139,6 @@ class MultimodalGASegDataset(AbstractDataset):
 
             # mask = (mask - np.min(mask, axis=(0,1))) / (np.max(mask, axis=(0,1)) - np.min(mask, axis=(0,1)))
 
-
-            # print("-------------------MASK SHAPE-----------------------")
-            # print(mask.shape)
-            # print("----------------------------------------------------")
-
             image_buffer = io.BytesIO()
             plt.imshow(mask, aspect='auto')
             plt.axis('off')
@@ -178,22 +155,9 @@ class MultimodalGASegDataset(AbstractDataset):
         # self.record['mask'] = mask[None, ..., None].transpose(0, 3, 1, 2, 4)
         # self.record['mask'] = mask.transpose(2, 0, 1)[:, :, None, :]
 
-        # self.record['mask'] = mask.transpose(0, 2, 1)[None, :, :, :] evvelki
         self.record['mask'] = mask.transpose(0, 2, 1)[None, :, :, :]
 
-        # print("-------------------SELF RECORD MASK-----------------------")
-        # print(self.record['mask'].shape)
-        # print("----------------------------------------------------------")
-
-        # print(22)
-
-        # if self.reconstruction.endswith('faf'):
         save_dir = "fundus_images"
-        # os.makedirs(save_dir, exist_ok=True)
-        
-        # if os.path.exists(save_dir):
-        #     shutil.rmtree(save_dir)
-        # os.makedirs(save_dir)
 
         save_path = join(save_dir, f"{random.random()}_fundus_image.png")
 

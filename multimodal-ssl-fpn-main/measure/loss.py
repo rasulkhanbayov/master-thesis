@@ -44,9 +44,6 @@ class BCELoss(nn.Module):
 
         pred = predict[self.output_key].reshape(-1)
         gt = target[self.target_key].view(-1)
-        
-        # I added this sigmoid function because gt values are not in range [0, 1]
-        # gt = torch.sigmoid(gt)
 
         loss = F.binary_cross_entropy(pred, gt, reduction='mean')
 
@@ -99,8 +96,6 @@ class MSELoss(nn.Module):
 
     def forward(self, target, predict):
         assert (target[self.target_key].shape == predict[self.output_key].shape)
-        # , \
-        #     f"Shape mismatch: {target[self.target_key].shape} vs {predict[self.output_key].shape}"
 
         pred = predict[self.output_key]
         gt = target[self.target_key]

@@ -69,9 +69,6 @@ class BCE(Metrics):
         pred = pred[:, self.slice].reshape(pred.size(0), -1)
         gr = gr[:, self.slice].view(gr.size(0), -1)
 
-        # I added this sigmoid function because gt values are not in range [0, 1]
-        # gr = torch.sigmoid(gr)
-
         bce = F.binary_cross_entropy(pred, gr, reduction='none')
         bce = bce.mean(dim=1).cpu().numpy()
 
@@ -224,9 +221,6 @@ class FocalLoss(Metrics):
 
         pred = pred[:, self.slice].reshape(pred.size(0), -1)
         gr = gr[:, self.slice].view(gr.size(0), -1)
-
-        # I added this sigmoid function because gt values are not in range [0, 1]
-        # gr = torch.sigmoid(gr)
 
         BCE_loss = F.binary_cross_entropy(pred, gr, reduction='none')
         pt = torch.exp(-BCE_loss)

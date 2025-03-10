@@ -14,6 +14,7 @@ from skimage.morphology import disk
 import time
 import matplotlib
 from matplotlib import pyplot as plt
+import cv2
 
 from factory_utils import get_factory_adder
 
@@ -114,8 +115,6 @@ class Model(pl.LightningModule):
                 )
         ):
             x['prediction'] = prediction['prediction']
-            # x['prediction'] = prediction['prediction'].cpu().detach().numpy()
-            # x['prediction'] = np.stack([x['prediction']] * 3, axis=-1)   
             self.debug_batch(x)
         return prediction
 
@@ -128,17 +127,6 @@ class Model(pl.LightningModule):
         min_val = data.min(axis=(0, 1), keepdims=True)
         max_val = data.max(axis=(0, 1), keepdims=True)
         return (data - min_val) / (max_val - min_val + 1e-10)
-    
-    # @staticmethod
-    # def normalize_rgb_channelwise(data: np.ndarray) -> np.ndarray:
-    #     normalized_image = np.zeros_like(data, dtype=np.float32)
-    #     for channel in range(3):
-    #         channel_data = data[:, :, channel]
-    #         min_val = np.min(channel_data)
-    #         max_val = np.max(channel_data)
-    #         normalized_channel = (channel_data - min_val) / (max_val + 1e-10 - min_val)
-    #         normalized_image[:, :, channel] = normalized_channel
-    #     return normalized_image
 
     def debug_batch(self, batch: dict):
         images = {}
@@ -151,62 +139,25 @@ class Model(pl.LightningModule):
                 if k not in batch:
                     continue
 
-                # if k == 'mask':
-                #     image = batch[k].detach().cpu().numpy()[b_i,0,:,:,:].mean(axis=1)
-                # elif k == 'image':
                 save_path_1 = join(self.model_path, 'test') # type: ignore
                 
-                if k == 'mask': # 1 1 512 3 128
+                if k == 'mask' or k == 'prediction':
                     image = batch[k].detach().cpu().numpy()[b_i, 0, :, :, :].transpose(0, 2, 1)
 
                     image = (image * 255).astype(np.uint8)
-
-                    # image = image.astype(np.uint8)  # Convert to uint8
-
-                    # Save as RGB image
-                    io.imsave(join(save_path_1, f'{ii} detach.png'), image)
-                elif k == 'prediction':
-
-                    image = batch[k].detach().cpu().numpy()[b_i, 0, :, :, :].transpose(0, 2, 1)
-
-                    # image = batch[k].detach().cpu().numpy()[b_i, :, :, 0, :].transpose(1, 2, 0)
-
-                    image = (image * 255).astype(np.uint8)
-
-                    # image = image.astype(np.uint8)  # Convert to uint8
 
                     # Save as RGB image
                     io.imsave(join(save_path_1, f'{ii} detach.png'), image)
                 else:
                     image = batch[k].detach().cpu().numpy()[b_i,0,:,:,:].mean(axis=1)
 
-                    
-                    io.imsave(
-                    join(save_path_1, f'{ii} detach.png'),
-                    (image*255).astype(np.uint8))
-                # else:
-                #     image = batch[k].detach().cpu().numpy()[b_i,0,:,:,:]        
+                    io.imsave(join(save_path_1, f'{ii} detach.png'),(image*255).astype(np.uint8))
 
-                # if k != 'mask':
-                #     image = np.stack([image] * 3, axis=-1)           
-
-                # if k == 'mask':
-                #     image = np.squeeze(image)    
-
-                
-
-                # if image.shape == (512, 128):
                 image = resize(
                     image,
                     (256,256,3),
                     preserve_range=True,
                 )
-                # else:
-                #     image = resize(
-                #         image,
-                #         (64,256),
-                #         preserve_range=True,
-                #     )
 
                 if k == 'mask':
                     
@@ -215,15 +166,11 @@ class Model(pl.LightningModule):
                     # Save as RGB image
                     io.imsave(join(save_path_1, f'{ii} resize.png'), image)
                 else: 
-                    save_path_1 = join(self.model_path, 'test') # type: ignore
-                    io.imsave(
-                    join(save_path_1, f'{ii} resize.png'),
-                    (image * 255).astype(np.uint8))
+                    save_path_1 = join(self.model_path, 'test')
+                    io.imsave(join(save_path_1, f'{ii} resize.png'), (image * 255).astype(np.uint8))
 
-                # if k == 'prediction':
-                #     image = self.normalize_rgb_channelwise(image)
-                # else:
-                    image = self.normalize_data_rgb_based(image)
+                    # image = self.normalize_data_rgb_based(image)
+                    image = self.normalize_data(image)
 
                 if k == 'mask':
                     
@@ -232,22 +179,11 @@ class Model(pl.LightningModule):
                     # Save as RGB image
                     io.imsave(join(save_path_1, f'{ii} normalize.png'), image)
                 else:
-                    save_path_1 = join(self.model_path, 'test') # type: ignore
+                    save_path_1 = join(self.model_path, 'test')
                     io.imsave(
                     join(save_path_1, f'{ii} normalize.png'),
                     (image * 255).astype(np.uint8))
 
-                # NOTE: 'mask' must be the first element
-                # if k == 'mask':
-                #     mask = image
-                #     bin_mask = (mask > 0.5)
-                #     bin_mask_borders = (
-                #         bin_mask.astype(float)
-                #         - binary_erosion(bin_mask, disk(2)).astype(float)
-                #     )
-                # else:
-                #     assert bin_mask_borders is not None
-                #     image[bin_mask_borders == 1] = 1
                 try:
                     if k != 'mask':
                         image = image * 255
