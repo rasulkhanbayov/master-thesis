@@ -42,8 +42,8 @@ class BCELoss(nn.Module):
 
         assert (target[self.target_key].shape == predict[self.output_key].shape)
 
-        pred = predict[self.output_key].view(-1)
-        gt = target[self.target_key].view(-1)
+        pred = predict[self.output_key].reshape(-1)
+        gt = target[self.target_key].reshape(-1)
 
         loss = F.binary_cross_entropy(pred, gt, reduction='mean')
 

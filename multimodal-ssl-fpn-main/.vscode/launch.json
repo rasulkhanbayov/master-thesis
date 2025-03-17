@@ -18,9 +18,9 @@
                 "Segmentation",
                 "--data-ratio",
                 "1"
-                // ,
-                // "--model-weights",
-                // "en-face-2.ckpt"
+                ,
+                "--model-weights",
+                "colored-with-enface-200.ckpt"
             ]
         }
     ]

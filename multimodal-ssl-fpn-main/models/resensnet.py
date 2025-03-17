@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import numpy as np
+import torch.nn.functional as F
 
 from config import config as global_config
 
@@ -340,19 +341,24 @@ class ModifiedUnet3D(nn.Module):
         # NOTE: original has no means
         conv1 = self.zdimRed1(conv1)
         if not self.is_original:
-            conv1 = torch.mean(conv1, dim=4, keepdim=True)
+            # conv1 = torch.mean(conv1, dim=4, keepdim=True)
+            conv1 = F.adaptive_avg_pool3d(conv1, (conv1.shape[2], conv1.shape[3], 3))
         conv2 = self.zdimRed2(conv2)
         if not self.is_original:
-            conv2 = torch.mean(conv2, dim=4, keepdim=True)
+            # conv2 = torch.mean(conv2, dim=4, keepdim=True)
+            conv2 = F.adaptive_avg_pool3d(conv2, (conv2.shape[2], conv2.shape[3], 3))
         conv3 = self.zdimRed3(conv3)
         if not self.is_original:
-            conv3 = torch.mean(conv3, dim=4, keepdim=True)
+            # conv3 = torch.mean(conv3, dim=4, keepdim=True)
+            conv3 = F.adaptive_avg_pool3d(conv3, (conv3.shape[2], conv3.shape[3], 3))
         conv4 = self.zdimRed4(conv4)
         if not self.is_original:
-            conv4 = torch.mean(conv4, dim=4, keepdim=True)
+            # conv4 = torch.mean(conv4, dim=4, keepdim=True)
+            conv4 = F.adaptive_avg_pool3d(conv4, (conv4.shape[2], conv4.shape[3], 3))
         conv5 = self.zdimRed5(conv5)
         if not self.is_original:
-            conv5 = torch.mean(conv5, dim=4, keepdim=True)
+            # conv5 = torch.mean(conv5, dim=4, keepdim=True)
+            conv5 = F.adaptive_avg_pool3d(conv5, (conv5.shape[2], conv5.shape[3], 3))
 
         # Upsampling:
         up4 = self.up_concat4(conv4, conv5)

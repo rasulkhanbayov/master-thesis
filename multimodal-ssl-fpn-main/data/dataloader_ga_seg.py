@@ -11,6 +11,8 @@ import io
 import os
 from os.path import join
 import shutil  # For removing directories
+import random
+import cv2
 
 from data.abstract_dataloader import AbstractDataset
 
@@ -95,34 +97,76 @@ class MultimodalGASegDataset(AbstractDataset):
             if self.reconstruction.startswith('inverted'):
                 mask = 1 - mask
         else:
-            mat = scipy.io.loadmat(path + "\\" + file_set_id + '_l.mat')
-            array_mask = mat["d3"]
+            
+            # test_mat = scipy.io.loadmat(path + "\\" + file_set_id + '_l.mat')
+            # array_mask = test_mat["d3"]
+            # array_mask = np.transpose(array_mask, (1, 0, 2))
+            # test_mask = np.mean(array_mask, axis = 1)
+            # test_mask = (test_mask - np.min(test_mask)) / (np.max(test_mask) - np.min(test_mask))
 
-            array_mask = np.transpose(array_mask, (1, 0, 2))
+            # mask = Image.open(path + '/cropped_' + str(file_set_id) + '_l.png')
+            # mask = mask.resize((128, 512))
 
-            mask = np.mean(array_mask, axis = 1)
+            # mask = cv2.imread(path + '/cropped_' + str(file_set_id) + '_l.png')
+            # mask = cv2.resize(mask, (128, 512))
+            
+            # mask = cv2.cvtColor(mask, cv2.COLOR_BGR2RGB)
+
+            # mask = mask.transpose(0, 2, 1)
+            # mask = np.mean(mask, axis = 1)
+ 
+            # mask = (mask - np.min(mask)) / (np.max(mask) - np.min(mask))
+
+            # ////////////////////////////////////////////
+
+            color_image = cv2.imread(path + '/cropped_' + str(file_set_id) + '_l.png')
+            color_image = cv2.resize(color_image, (128, 512))
+            color_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2RGB)
+
+            # mask1 = (color_image - np.min(color_image)) / (np.max(color_image) - np.min(color_image))
+
+            # image_right = (image_right - np.min(image_right)) / (np.max(image_right) - np.min(image_right))
+
+            mat_left = scipy.io.loadmat(path + "\\" + file_set_id + '_l.mat')
+
+            arr_left = mat_left["d3"]
+            en_face_image = np.mean(arr_left, axis = 0)
+            en_face_image = 0.5 + (en_face_image - np.min(en_face_image)) / (np.max(en_face_image) - np.min(en_face_image))
+
+            grayscale_3channel = np.stack([en_face_image] * 3, axis=-1)
+            mask = (color_image * grayscale_3channel).astype(np.uint8)
+
+            # Apply gamma correction to improve brightness
+            gamma = 1.2  # Adjust this value to control brightness
+            inv_gamma = 1.0 / gamma
+            table = np.array([(i / 255.0) ** inv_gamma * 255 for i in np.arange(0, 256)]).astype("uint8")
+            mask = cv2.LUT(mask, table) # 512 3 128
+
             mask = (mask - np.min(mask)) / (np.max(mask) - np.min(mask))
 
-            image_buffer = io.BytesIO()
-            plt.imshow(mask, cmap='gray', aspect='auto')
-            plt.axis('off')
-            plt.savefig(image_buffer, format="PNG", bbox_inches='tight', pad_inches=0)
-            plt.close()
-            image_bytes = image_buffer.getvalue()
+            # ////////////////////////////////////////////
+
+            # image_buffer = io.BytesIO()
+            # plt.imshow(mask, aspect='auto')
+            # plt.axis('off')
+            # plt.savefig(image_buffer, format="PNG", bbox_inches='tight', pad_inches=0)
+            # plt.close()
+            # image_bytes = image_buffer.getvalue()
             
             # mask = mask/256
             # Apply threshold
             # mask = np.where(mask>=0.5, 1., 0.)
-        self.record['mask'] = mask[None,:,None,:]
+        # self.record['mask'] = mask[None,:,None,:]
+        self.record['mask'] = mask.transpose(0, 2, 1)[None, :, :, :]
 
-        save_dir = "en_face_images"
-        os.makedirs(save_dir, exist_ok=True)
+        # save_dir = "fundus_images"
+        # os.makedirs(save_dir, exist_ok=True)
 
-        save_path = join(save_dir, f"{file_set_id}_en_face_image.png")
+        # save_path = join(save_dir, f"{random.random()}_fundus_image.png")
 
-        en_face_image = Image.open(io.BytesIO(image_bytes))
-        en_face_image.save(save_path)
-        en_face_image.close()
-        del image_bytes
+        # en_face_image = Image.open(io.BytesIO(image_bytes))
+        # en_face_image.save(save_path)
+        # en_face_image.close()
+        # del image_bytes
 
         # return self.record
