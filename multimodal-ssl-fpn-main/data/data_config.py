@@ -48,24 +48,24 @@ class DefaultConfig:
         ch_size = self.ch_size
         extra_transforms = self.extra_transforms
 
-        to_tensor_transform = transforms.ToTensorDict(transform_keys=['image', 'mask'])
+        to_tensor_transform = transforms.ToTensorDict(transform_keys=['image', 'mask', 'fungus_image'])
 
         mirror_transforms = [
-            transforms.RandomMirror(transform_keys=['image', 'mask'],dimensions=[1,3])
+            transforms.RandomMirror(transform_keys=['image', 'mask', 'fungus_image'],dimensions=[1,3])
         ]
 
         rotation_transforms = [
-            transforms.RandomRotation180(keys={ 'image', 'mask' }),
+            transforms.RandomRotation180(keys={ 'image', 'mask', 'fungus_image' }),
         ]
 
         crop_transforms = [
             transforms.NewRandomRelCrop(
                 reference_key='image',
-                transform_keys=['image', 'mask'],
+                transform_keys=['image', 'mask', 'fungus_image'],
                 size=[None, h_size, None, ch_size],
             ),
             transforms.NewRandomRelSize(
-                transform_keys=['image', 'mask'],
+                transform_keys=['image', 'mask', 'fungus_image'],
                 fixed_size=[None, h_size, None, ch_size],
             ),
         ]
@@ -94,7 +94,7 @@ class DefaultConfig:
             *norm_transforms,
             # Use full image
             transforms.NewRandomRelFit(
-                transform_keys=['image', 'mask'],
+                transform_keys=['image', 'mask', 'fungus_image'],
                 fit=[None, 16, None, 16]
             ),
             to_tensor_transform

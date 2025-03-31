@@ -18,9 +18,9 @@
                 "Segmentation",
                 "--data-ratio",
                 "1"
-                ,
-                "--model-weights",
-                "colored-with-enface-200.ckpt"
+                // ,
+                // "--model-weights",
+                // "MSE-grascale-400+800.ckpt"
             ]
         }
     ]

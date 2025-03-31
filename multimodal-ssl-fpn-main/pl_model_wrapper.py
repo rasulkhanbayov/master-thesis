@@ -128,7 +128,7 @@ class Model(pl.LightningModule):
         batch_size = batch['prediction'].shape[0]
         ii=1
         for b_i in range(batch_size):
-            for k in ['mask', 'prediction', 'image']:
+            for k in ['fungus_image', 'mask', 'prediction', 'image']:
                 if k not in batch:
                     continue
 
@@ -138,6 +138,13 @@ class Model(pl.LightningModule):
                     image = batch[k].detach().cpu().numpy()[b_i, 0, :, :, :].transpose(0, 2, 1)
 
                     image = (image * 255).astype(np.uint8)
+
+                    # Save as RGB image
+                    io.imsave(join(save_path_1, f'{ii} detach.png'), image)
+                elif k == 'fungus_image':
+                    image = batch[k].detach().cpu().numpy()[b_i, 0, :, :, :].transpose(0, 2, 1)
+
+                    image = image.astype(np.uint8)
 
                     # Save as RGB image
                     io.imsave(join(save_path_1, f'{ii} detach.png'), image)
@@ -152,7 +159,7 @@ class Model(pl.LightningModule):
                     preserve_range=True,
                 )
 
-                if k == 'mask':
+                if k == 'mask' or k == 'fungus_image':
                     
                     image = image.astype(np.uint8)  # Convert to uint8
 
@@ -165,7 +172,7 @@ class Model(pl.LightningModule):
                     # image = self.normalize_data_rgb_based(image)
                     image = self.normalize_data(image)
 
-                if k == 'mask':
+                if k == 'mask' or k == 'fungus_image':
                     
                     image = image.astype(np.uint8)  # Convert to uint8
 
@@ -178,13 +185,13 @@ class Model(pl.LightningModule):
                     (image * 255).astype(np.uint8))
 
                 try:
-                    if k != 'mask':
+                    if k != 'mask' and k != 'fungus_image':
                         image = image * 255
                     images[b_i] = np.concatenate([images[b_i], image], axis = 1)
                 except KeyError:
                     images[b_i] = image
 
-                if k == 'mask':
+                if k == 'mask' and k == 'fungus_image':
                     
                     image = image.astype(np.uint8)  # Convert to uint8
 

@@ -11,8 +11,8 @@ import io
 import os
 from os.path import join
 import shutil  # For removing directories
-import random
 import cv2
+import random
 
 from data.abstract_dataloader import AbstractDataset
 
@@ -97,41 +97,26 @@ class MultimodalGASegDataset(AbstractDataset):
             if self.reconstruction.startswith('inverted'):
                 mask = 1 - mask
         else:
-            
-            # test_mat = scipy.io.loadmat(path + "\\" + file_set_id + '_l.mat')
-            # array_mask = test_mat["d3"]
-            # array_mask = np.transpose(array_mask, (1, 0, 2))
-            # test_mask = np.mean(array_mask, axis = 1)
-            # test_mask = (test_mask - np.min(test_mask)) / (np.max(test_mask) - np.min(test_mask))
 
-            # mask = Image.open(path + '/cropped_' + str(file_set_id) + '_l.png')
-            # mask = mask.resize((128, 512))
-
-            # mask = cv2.imread(path + '/cropped_' + str(file_set_id) + '_l.png')
-            # mask = cv2.resize(mask, (128, 512))
-            
-            # mask = cv2.cvtColor(mask, cv2.COLOR_BGR2RGB)
-
-            # mask = mask.transpose(0, 2, 1)
-            # mask = np.mean(mask, axis = 1)
- 
-            # mask = (mask - np.min(mask)) / (np.max(mask) - np.min(mask))
-
-            # ////////////////////////////////////////////
-
-            color_image = cv2.imread(path + '/cropped_' + str(file_set_id) + '_l.png')
+            color_image = cv2.imread(path + '/new_cropped_image_' + str(file_set_id) + '_l.png')
             color_image = cv2.resize(color_image, (128, 512))
             color_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2RGB)
 
-            # mask1 = (color_image - np.min(color_image)) / (np.max(color_image) - np.min(color_image))
+            color_image_transpose = color_image.transpose(0, 2, 1)[None, :, :, :]
 
-            # image_right = (image_right - np.min(image_right)) / (np.max(image_right) - np.min(image_right))
+            self.record['fungus_image'] = color_image_transpose
 
-            mat_left = scipy.io.loadmat(path + "\\" + file_set_id + '_l.mat')
+            # mask = mask.transpose(0, 2, 1)
+            # mask = np.mean(mask, axis = 1)
 
-            arr_left = mat_left["d3"]
-            en_face_image = np.mean(arr_left, axis = 0)
-            en_face_image = 0.5 + (en_face_image - np.min(en_face_image)) / (np.max(en_face_image) - np.min(en_face_image))
+            # color_image = (color_image - np.min(color_image)) / (np.max(color_image) - np.min(color_image))
+
+
+            mat = scipy.io.loadmat(path + "\\" + file_set_id + '_l.mat')
+            array_mask = mat["d3"]
+
+            en_face_image = np.mean(array_mask, axis = 0)
+            en_face_image = (en_face_image - np.min(en_face_image)) / (np.max(en_face_image) - np.min(en_face_image))
 
             grayscale_3channel = np.stack([en_face_image] * 3, axis=-1)
             mask = (color_image * grayscale_3channel).astype(np.uint8)
@@ -140,14 +125,12 @@ class MultimodalGASegDataset(AbstractDataset):
             gamma = 1.2  # Adjust this value to control brightness
             inv_gamma = 1.0 / gamma
             table = np.array([(i / 255.0) ** inv_gamma * 255 for i in np.arange(0, 256)]).astype("uint8")
-            mask = cv2.LUT(mask, table) # 512 3 128
+            mask = cv2.LUT(mask, table)
 
             mask = (mask - np.min(mask)) / (np.max(mask) - np.min(mask))
 
-            # ////////////////////////////////////////////
-
             # image_buffer = io.BytesIO()
-            # plt.imshow(mask, aspect='auto')
+            # plt.imshow(mask, cmap='gray', aspect='auto')
             # plt.axis('off')
             # plt.savefig(image_buffer, format="PNG", bbox_inches='tight', pad_inches=0)
             # plt.close()

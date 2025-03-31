@@ -10,7 +10,7 @@ parser.add_argument("--dataset", type=str, required=True)
 parser.add_argument("--data-ratio", type=float, default=1.0)
 # Execution options
 parser.add_argument("--exec-test", action='store_true', help="execution test")
-parser.add_argument("--version", type=str, default="v19")
+parser.add_argument("--version", type=str, default="v23")
 parser.add_argument("--gpus", type=Union[list, int], default=1)
 parser.add_argument("--cache-strategy", type=str, default="DoNotReleaseMemCache")
 parser.add_argument("--threads", type=int, default=8)
